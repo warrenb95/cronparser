@@ -1,35 +1,36 @@
 package main
 
 import (
-	"github/warrenb95/cronparser/pkg/cron"
-	"github/warrenb95/cronparser/pkg/printer"
+	"fmt"
+	"github/warrenb95/cronparser/internal/cron"
 	"log"
 	"os"
 	"strings"
 )
 
 func main() {
-	// get input
 	inputArgs := os.Args[1:2]
 
-	// validate input
 	strArgs := strings.Fields(inputArgs[0])
 	if len(strArgs) != 6 {
 		log.Fatalf("input args len invalid: %v", len(strArgs))
 	}
 
-	//process the input
-	// do not send the last strArg
-	processedArgs := cron.Parse(strArgs[:len(strArgs)-1])
+	processedArgs, err := cron.Parse(strArgs[:len(strArgs)-1])
+	if err != nil {
+		log.Fatalf("failed to parse cron input arg: %v", err)
+	}
+
 	processedArgs = append(processedArgs, strArgs[len(strArgs)-1])
 
-	// print the value to console
-	printer.PrintCron([]string{
+	for i, title := range []string{
 		"minute",
 		"hour",
 		"day of month",
 		"month",
 		"day of week",
 		"command",
-	}, processedArgs)
+	} {
+		fmt.Printf("%-14s%s\n", title, processedArgs[i])
+	}
 }
