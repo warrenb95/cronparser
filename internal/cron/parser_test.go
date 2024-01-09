@@ -9,11 +9,15 @@ import (
 )
 
 func TestParse(t *testing.T) {
-	tests := []struct {
-		input  []string
-		output []string
+	t.Parallel()
+
+	// Test Cases
+	tests := map[string]struct {
+		input          []string
+		expectedOutput []string
+		errContains    string
 	}{
-		{
+		"pass": {
 			input: []string{
 				"*/15",
 				"0",
@@ -21,7 +25,7 @@ func TestParse(t *testing.T) {
 				"*",
 				"1-5",
 			},
-			output: []string{
+			expectedOutput: []string{
 				"0 15 30 45",
 				"0",
 				"1 15",
@@ -29,12 +33,33 @@ func TestParse(t *testing.T) {
 				"1 2 3 4 5",
 			},
 		},
+		"error parsing min value": {
+			input: []string{
+				"oops/15",
+				"0",
+				"1,15",
+				"*",
+				"1-5",
+			},
+			errContains: "can't parse minVal",
+		},
 	}
 
-	for _, tt := range tests {
-		res, err := cron.Parse(tt.input)
-		require.NoError(t, err)
+	// Testing
+	for name, test := range tests {
+		test := test
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			res, err := cron.Parse(test.input)
 
-		assert.Equal(t, tt.output, res)
+			if test.errContains != "" {
+				require.Error(t, err)
+				assert.Contains(t, err.Error(), test.errContains)
+				return
+			}
+			require.NoError(t, err)
+
+			assert.Equal(t, test.expectedOutput, res)
+		})
 	}
 }

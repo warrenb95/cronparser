@@ -1,7 +1,6 @@
 package cron
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -39,11 +38,6 @@ func Parse(inputSlice []string) ([]string, error) {
 		case strings.Contains(arg, ","):
 			argSlice := strings.Split(arg, ",")
 			outputArray[i] = strings.Join(argSlice, " ")
-			formattedValue, err := getWithInterval(arg, ranges[i][1])
-			if err != nil {
-				return nil, fmt.Errorf("parsing cron: %v", err)
-			}
-			outputArray[i] = formattedValue
 		case strings.Contains(arg, "*"):
 			formattedValue, err := getWithRange(ranges[i][0], ranges[i][1])
 			if err != nil {
@@ -70,14 +64,13 @@ func getWithInterval(arg string, maxVal int) (string, error) {
 	} else if minStr != "*" {
 		v, err := strconv.Atoi(minStr)
 		if err != nil {
-			log.Fatalf("can't parse minVal %v", minStr)
+			return "", fmt.Errorf("can't parse minVal %v", minStr)
 		}
 		minVal = v
 	}
 
 	interval, err := strconv.Atoi(intervalStr)
 	if err != nil {
-		log.Print(fmt.Sprintf("cannot parse input %s error %w", intervalStr, err))
 		return "", fmt.Errorf("parsing interval string while getWithInterval: %v", err)
 	}
 
@@ -86,7 +79,7 @@ func getWithInterval(arg string, maxVal int) (string, error) {
 
 func getWithRange(minVal, maxVal int) (string, error) {
 	if minVal > maxVal {
-		err := errors.New(fmt.Sprintf("invalid range %d-%d - %d must be smaller than %d", minVal, maxVal, minVal, maxVal))
+		err := fmt.Errorf("invalid range %d-%d - %d must be smaller than %d", minVal, maxVal, minVal, maxVal)
 		log.Print(err)
 		return "", err
 	}
