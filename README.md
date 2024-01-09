@@ -15,7 +15,12 @@ go build
 ## Usage
 
 ```
-$ ./cronparser "*/15 0 1,15 * 1-5 /usr/bin/find"
+./cronparser "*/15 0 1,15 * 1-5 /usr/bin/find"
+```
+
+### Output
+
+```
 minute        0 15 30 45
 hour          0
 day of month  1 15
