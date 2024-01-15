@@ -1,6 +1,6 @@
 # cronparser
 
-cronparser is a package to parse a cron string and output it to the command line e.g
+cronparser is a package to parse a cron string and output it to the command line.
 
 ## Installation
 
@@ -17,6 +17,11 @@ go build
 ```
 go run . "*/15 0 1,15 * 1-5 /usr/bin/find"
 ```
+or
+```
+go build
+./cronparser"*/15 0 1,15 * 1-5 /usr/bin/find"
+```
 
 ### Output
 
@@ -27,15 +32,7 @@ day of month  1 15
 month         1 2 3 4 5 6 7 8 9 10 11 12
 day of week   1 2 3 4 5
 command       /usr/bin/find
-```
-
-## Testing
-
-This package is unit tested with coverage of `88.4%`
-
-## Contributing
-
-Feel free to create pull requests. Ensure that you update/add unit tests.
+``` 
 
 ## License
 
