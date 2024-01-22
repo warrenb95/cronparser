@@ -12,16 +12,24 @@ func TestWithRange(t *testing.T) {
 
 	// Test Cases
 	tests := map[string]struct {
-		min int
-		max int
+		start int
+		end   int
+		max   int
 
 		expectedOutput string
 		errContains    string
 	}{
-		"pass": {
-			min:            1,
-			max:            5,
+		"pass day of week": {
+			start:          1,
+			end:            5,
+			max:            7,
 			expectedOutput: "1 2 3 4 5",
+		},
+		"circular pass": {
+			start:          5,
+			end:            2,
+			max:            7,
+			expectedOutput: "5 6 7 1 2",
 		},
 	}
 
@@ -31,7 +39,7 @@ func TestWithRange(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			result, err := getWithRange(test.min, test.max)
+			result, err := getWithRange(test.start, test.end, test.max)
 			if test.errContains != "" {
 				require.Error(t, err)
 				assert.Contains(t, err.Error(), test.errContains)

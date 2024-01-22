@@ -7,18 +7,18 @@ import (
 	"strings"
 )
 
-const ()
-
-// Parse the inputSlice cron values and return a string array of formatted values.
-func Parse(inputSlice []string) ([]string, error) {
-	ranges := [][]int{
+var (
+	ranges = [][]int{
 		{0, 59}, // Minute
 		{0, 23}, // Hour
 		{1, 31}, // DayMonth
 		{1, 12}, // Month
 		{1, 7},  // DayWeek
 	}
+)
 
+// Parse the inputSlice cron values and return a string array of formatted values.
+func Parse(inputSlice []string) ([]string, error) {
 	outputArray := make([]string, len(inputSlice))
 	for i, arg := range inputSlice {
 		switch {
@@ -29,8 +29,8 @@ func Parse(inputSlice []string) ([]string, error) {
 			}
 			outputArray[i] = formattedValue
 		case strings.Contains(arg, "-"):
-			min, max := getBounds(arg)
-			formattedValue, err := getWithRange(min, max)
+			start, end := getBounds(arg)
+			formattedValue, err := getWithRange(start, end, ranges[i][1])
 			if err != nil {
 				return nil, fmt.Errorf("parsing cron: %v", err)
 			}
@@ -39,7 +39,7 @@ func Parse(inputSlice []string) ([]string, error) {
 			argSlice := strings.Split(arg, ",")
 			outputArray[i] = strings.Join(argSlice, " ")
 		case strings.Contains(arg, "*"):
-			formattedValue, err := getWithRange(ranges[i][0], ranges[i][1])
+			formattedValue, err := getWithRange(ranges[i][0], ranges[i][1], ranges[i][1])
 			if err != nil {
 				return nil, fmt.Errorf("parsing cron: %v", err)
 			}
@@ -77,13 +77,23 @@ func getWithInterval(arg string, maxVal int) (string, error) {
 	return getOutputString(minVal, maxVal, interval), nil
 }
 
-func getWithRange(minVal, maxVal int) (string, error) {
-	if minVal > maxVal {
-		err := fmt.Errorf("invalid range %d-%d - %d must be smaller than %d", minVal, maxVal, minVal, maxVal)
-		log.Print(err)
-		return "", err
+func getWithRange(start, end int, max int) (string, error) {
+	if start < end {
+		return getOutputString(start, end, int(1)), nil
 	}
-	return getOutputString(minVal, maxVal, int(1)), nil
+
+	tmpDayArry := make([]string, 0, max)
+	for i := start; ; i++ {
+		tmpDayArry = append(tmpDayArry, fmt.Sprintf("%d", i))
+
+		if i == end {
+			break
+		} else if i == max {
+			i = 0
+		}
+	}
+
+	return strings.Join(tmpDayArry, " "), nil
 }
 
 func getBounds(arg string) (int, int) {

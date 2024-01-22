@@ -33,6 +33,22 @@ func TestParse(t *testing.T) {
 				"1 2 3 4 5",
 			},
 		},
+		"pass circular range": {
+			input: []string{
+				"*/15",
+				"0",
+				"30-4",
+				"*",
+				"1-5",
+			},
+			expectedOutput: []string{
+				"0 15 30 45",
+				"0",
+				"30 31 1 2 3 4",
+				"1 2 3 4 5 6 7 8 9 10 11 12",
+				"1 2 3 4 5",
+			},
+		},
 		"error parsing min value": {
 			input: []string{
 				"oops/15",
